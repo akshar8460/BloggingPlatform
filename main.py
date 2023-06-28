@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -20,7 +20,11 @@ class LoginSchema(BaseModel):
 
 
 @app.post("/login")
-def login(login_schema: LoginSchema):
+def login(login_schema: LoginSchema, response: Response):
     if login_schema.email == "admin@test.com" and login_schema.password == "admin":
         return {"success": True}
-    return {"success": False}, 404
+    response.status_code = status.HTTP_404_NOT_FOUND
+    return {"success": False}
+
+
+
