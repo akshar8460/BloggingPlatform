@@ -1,9 +1,23 @@
 import logging
 
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, Depends
 from pydantic import BaseModel, Field, EmailStr
+from sqlalchemy.orm import Session
 
+import crud
+from db_connector import SessionLocal, engine, Base
+
+Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 # class BASEMODEL_CLASS_TYPE(BaseModel):
 #     key1: type
@@ -59,10 +73,11 @@ def login(login_schema: LoginSchema, response: Response):
 
 
 @app.post("/create_account")
-def create_acc(create_user: CreateAccount, response: Response):
+def create_acc(create_user: CreateAccount, response: Response, db: Session = Depends(get_db)):
     """get data, if present in database
     response.status_code = status.HTTP_403_FORBIDDEN
     return{"success": False}
     """
+    db_user = crud.create_user(db, create_user.email, create_user.password, create_user.name)
     response.status_code = status.HTTP_201_CREATED  # for user creation
     return {"name": create_user.name, "email": create_user.email, "User Created": True}
