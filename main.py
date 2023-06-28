@@ -1,8 +1,9 @@
+import logging
+
 from fastapi import FastAPI, Response, status
 from pydantic import BaseModel, Field, EmailStr
 
 app = FastAPI()
-
 
 # class BASEMODEL_CLASS_TYPE(BaseModel):
 #     key1: type
@@ -13,6 +14,28 @@ app = FastAPI()
 # def any_name(PATH_PARAM: TYPE, QUERY_PARAMS: TYPE, BODY: BASEMODEL_CLASS_TYPE):
 #     # LOGIC
 #     return {"data": "secret"}
+
+# Create a logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create a file handler and set the log level
+file_handler = logging.FileHandler("app.log")
+file_handler.setLevel(logging.DEBUG)
+
+# Create a console handler and set the log level
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# Create a formatter and add it to the handlers
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# Add the handlers to the logger
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
 
 class LoginSchema(BaseModel):
     email: EmailStr
@@ -28,18 +51,18 @@ class CreateAccount(BaseModel):
 @app.post("/login")
 def login(login_schema: LoginSchema, response: Response):
     if login_schema.email == "admin@test.com" and login_schema.password == "admin":
+        logger.info("Successful login")
         return {"success": True}
-    response.status_code = status.HTTP_404_NOT_FOUND
+    response.status_code = status.HTTP_401_UNAUTHORIZED
+    logger.warning("Unauthorized user")
     return {"success": False}
 
 
 @app.post("/create_account")
-def create_acc(create_user: CreateAccount,response: Response):
+def create_acc(create_user: CreateAccount, response: Response):
     """get data, if present in database
     response.status_code = status.HTTP_403_FORBIDDEN
     return{"success": False}
     """
-    response.status_code = status.HTTP_201_CREATED                                                          #for user creation
+    response.status_code = status.HTTP_201_CREATED  # for user creation
     return {"name": create_user.name, "email": create_user.email, "User Created": True}
-
-

@@ -1,0 +1,5 @@
+2023-06-28 13:58:48,127 - log - DEBUG - This is a debug message
+2023-06-28 13:58:48,127 - log - INFO - This is an info message
+2023-06-28 13:58:48,127 - log - WARNING - This is a warning message
+2023-06-28 13:58:48,127 - log - ERROR - This is an error message
+2023-06-28 14:48:19,919 - main - INFO - Successful login
