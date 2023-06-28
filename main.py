@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Response, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 
 app = FastAPI()
 
@@ -15,8 +15,8 @@ app = FastAPI()
 #     return {"data": "secret"}
 
 class LoginSchema(BaseModel):
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=20)
 
 
 @app.post("/login")
