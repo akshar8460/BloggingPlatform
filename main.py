@@ -16,7 +16,13 @@ app = FastAPI()
 
 class LoginSchema(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6, max_length=20)
+    password: str = Field(min_length=5, max_length=20)
+
+
+class CreateAccount(BaseModel):
+    name: str
+    email: EmailStr
+    password: str = Field(min_length=5, max_length=20)
 
 
 @app.post("/login")
@@ -26,5 +32,14 @@ def login(login_schema: LoginSchema, response: Response):
     response.status_code = status.HTTP_404_NOT_FOUND
     return {"success": False}
 
+
+@app.post("/create_account")
+def create_acc(create_user: CreateAccount,response: Response):
+    """get data, if present in database
+    response.status_code = status.HTTP_403_FORBIDDEN
+    return{"success": False}
+    """
+    response.status_code = status.HTTP_201_CREATED                                                          #for user creation
+    return {"name": create_user.name, "email": create_user.email, "User Created": True}
 
 
