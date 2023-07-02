@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import uvicorn
 import crud
 from db_connector import engine, Base, get_db
+from email_service_client import send_email
 from log_config import logger
 from schemas import LoginSchema, CreateAccount, CreateBlog
 
@@ -22,7 +23,7 @@ def login(login_schema: LoginSchema, response: Response):
 
 @app.post("/create_account")
 def create_acc(create_user: CreateAccount, response: Response, db: Session = Depends(get_db)):
-    """get data, if present in database
+    """TODO: get data, if present in database
     response.status_code = status.HTTP_403_FORBIDDEN
     return{"success": False}
     """
@@ -35,8 +36,17 @@ def create_acc(create_user: CreateAccount, response: Response, db: Session = Dep
 def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session = Depends(get_db)):
     crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
     response.status_code = status.HTTP_201_CREATED
-    return {"topic": create_blog_payload.topic, "content": create_blog_payload.data}
+    email_response = send_email()
+    logger.debug(f"Email Response: {email_response}")
+    response = {
+        "topic": create_blog_payload.topic,
+        "content": create_blog_payload.data,
+        "email_sent": False
+    }
+    if email_response.get("success"):
+        response["email_sent"] = True
+    return response
 
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    uvicorn.run(app, port=8000)

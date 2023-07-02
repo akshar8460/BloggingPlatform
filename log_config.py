@@ -12,7 +12,7 @@ logger.setLevel(logging.DEBUG)
 file_handler.setLevel(logging.DEBUG)
 
 # Create a console handler and set the log level
-console_handler.setLevel(logging.INFO)
+console_handler.setLevel(logging.DEBUG)
 
 # Create a formatter and add it to the handlers
 file_handler.setFormatter(formatter)
