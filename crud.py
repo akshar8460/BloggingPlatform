@@ -24,3 +24,13 @@ def delete_blog(db: Session, id):
     db.delete(db_blog)
     db.commit()
     return True
+
+
+def read_blog(db: Session, id):
+    db_blog = db.query(Blog).filter(Blog.id == id).first()
+    return db_blog
+
+
+def read_all_blog(db: Session):
+    db_blogs = db.query(Blog).all()
+    return db_blogs

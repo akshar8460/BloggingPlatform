@@ -2,6 +2,8 @@ from fastapi import FastAPI, Response, status, Depends
 from sqlalchemy.orm import Session
 import uvicorn
 import crud
+import models
+from typing import List
 from db_connector import engine, Base, get_db
 from email_service_client import send_email
 from log_config import logger
@@ -46,6 +48,18 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
     if email_response.get("success"):
         response["email_sent"] = True
     return response
+
+
+@app.get("/api/blogs/{blog_id}")
+def read_blog(blog_id: int, db: Session = Depends(get_db)):
+    blog_record: models.Blog = crud.read_blog(db, blog_id)
+    return blog_record
+
+
+@app.get("/api/blogs")
+def read_all_blog(db: Session = Depends(get_db)):
+    blog_records: List[models.Blog] = crud.read_all_blog(db)
+    return blog_records
 
 
 @app.delete("/api/blogs/{blog_id}")
