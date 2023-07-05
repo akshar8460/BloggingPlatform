@@ -15,3 +15,9 @@ class CreateAccount(BaseModel):
 class CreateBlog(BaseModel):
     topic: str = Field(max_length=25)
     data: str
+
+
+class UpdateBlog(BaseModel):
+    topic: str = Field(max_length=25)
+    data: str
+

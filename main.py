@@ -7,7 +7,7 @@ from typing import List
 from db_connector import engine, Base, get_db
 from email_service_client import send_email
 from log_config import logger
-from schemas import LoginSchema, CreateAccount, CreateBlog
+from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -60,6 +60,12 @@ def read_blog(blog_id: int, db: Session = Depends(get_db)):
 def read_all_blog(db: Session = Depends(get_db)):
     blog_records: List[models.Blog] = crud.read_all_blog(db)
     return blog_records
+
+
+@app.put("/api/blogs/{blog_id}")
+def update_blog(blog_id, update_blog_payload: UpdateBlog, db: Session = Depends(get_db)):
+    updated_record = crud.update_blog(db,blog_id, update_blog_payload.topic, update_blog_payload.data)
+    return updated_record
 
 
 @app.delete("/api/blogs/{blog_id}")

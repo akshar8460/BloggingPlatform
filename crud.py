@@ -19,13 +19,6 @@ def create_blog(db: Session, topic, data):
     return db_blog
 
 
-def delete_blog(db: Session, id):
-    db_blog = db.query(Blog).filter(Blog.id == id).first()
-    db.delete(db_blog)
-    db.commit()
-    return True
-
-
 def read_blog(db: Session, id):
     db_blog = db.query(Blog).filter(Blog.id == id).first()
     return db_blog
@@ -34,3 +27,20 @@ def read_blog(db: Session, id):
 def read_all_blog(db: Session):
     db_blogs = db.query(Blog).all()
     return db_blogs
+
+
+def delete_blog(db: Session, id):
+    db_blog = db.query(Blog).filter(Blog.id == id).first()
+    db.delete(db_blog)
+    db.commit()
+    return True
+
+
+def update_blog(db: Session, id, topic, data):
+    db_blog: Blog = db.query(Blog).filter(Blog.id == id).first()
+    db_blog.topic = topic
+    db_blog.data = data
+    db.commit()
+    db.refresh(db_blog)
+    return db_blog
+
