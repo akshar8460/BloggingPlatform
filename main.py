@@ -48,5 +48,12 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
     return response
 
 
+@app.delete("/api/blogs/{blog_id}")
+def delete_blog(blog_id: int, db: Session = Depends(get_db)):
+    crud.delete_blog(db, blog_id)
+    response = {"success": True}
+    return response
+
+
 if __name__ == "__main__":
     uvicorn.run(app, port=8000)

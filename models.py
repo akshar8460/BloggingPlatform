@@ -16,7 +16,3 @@ class Blog(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     topic = Column(String, unique=True, index=True)
     data = Column(String)
-
-
-
-
