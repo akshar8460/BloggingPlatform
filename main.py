@@ -9,7 +9,7 @@ import models
 from db_connector import engine, Base, get_db
 from email_service_client import send_email
 from log_config import logger
-from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog
+from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog, UpdateUser
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -40,6 +40,19 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user_record: models.User = crud.get_user(db, user_id)
     return user_record
+
+
+@app.get("/api/users/")
+def get_all_users(db: Session = Depends(get_db)):
+    users_records: List[models.User] = crud.get_all_users(db)
+    return users_records
+
+
+@app.put("/api/users/{user_id}")
+def update_blog(user_id, update_user_payload: UpdateUser, db: Session = Depends(get_db)):
+    updated_user = crud.update_user(db, user_id, update_user_payload.email, update_user_payload.name,
+                                    update_user_payload.password)
+    return updated_user
 
 
 @app.post("/api/blogs")

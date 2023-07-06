@@ -16,6 +16,20 @@ def get_user(db: Session, id):
     return db_user
 
 
+def get_all_users(db: Session):
+    db_users = db.query(User).all()
+    return db_users
+
+
+def update_user(db: Session, id, name, email, password):
+    db_user: User = db.query(User).filter(User.id == id).first()
+    db_user.name = name
+    db_user.email = email
+    db_user.password = password
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 
 def create_blog(db: Session, topic, data):
     db_blog = Blog(topic=topic, data=data)
@@ -49,4 +63,3 @@ def update_blog(db: Session, id, topic, data):
     db.commit()
     db.refresh(db_blog)
     return db_blog
-
