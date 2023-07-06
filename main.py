@@ -55,6 +55,13 @@ def update_blog(user_id, update_user_payload: UpdateUser, db: Session = Depends(
     return updated_user
 
 
+@app.delete("/api/users/{user_id}")
+def delete_user(user_id, db: Session = Depends(get_db)):
+    crud.delete_user(db, user_id)
+    response = {"success": True}
+    return response
+
+
 @app.post("/api/blogs")
 def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session = Depends(get_db)):
     crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)

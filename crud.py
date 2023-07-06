@@ -31,6 +31,13 @@ def update_user(db: Session, id, name, email, password):
     return db_user
 
 
+def delete_user(db: Session, id):
+    db_user = db.query(User).filter(User.id == id).first()
+    db.delete(db_user)
+    db.commit()
+    return True
+
+
 def create_blog(db: Session, topic, data):
     db_blog = Blog(topic=topic, data=data)
     db.add(db_blog)
