@@ -11,6 +11,12 @@ def create_user(db: Session, email, password, name):
     return db_user
 
 
+def get_user(db: Session, id):
+    db_user = db.query(User).filter(User.id == id).first()
+    return db_user
+
+
+
 def create_blog(db: Session, topic, data):
     db_blog = Blog(topic=topic, data=data)
     db.add(db_blog)

@@ -36,6 +36,12 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
     return {"name": create_user.name, "email": create_user.email, "User Created": True}
 
 
+@app.get("/api/users/{user_id}")
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user_record: models.User = crud.get_user(db, user_id)
+    return user_record
+
+
 @app.post("/api/blogs")
 def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session = Depends(get_db)):
     crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
