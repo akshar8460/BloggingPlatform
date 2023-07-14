@@ -1,7 +1,10 @@
-from typing import List
+from datetime import timedelta, datetime
+from typing import List, Annotated
 
 import uvicorn
-from fastapi import FastAPI, Response, status, Depends
+from fastapi import FastAPI, Response, status, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 import crud
@@ -14,15 +17,58 @@ from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog, UpdateUs
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # Todo: Change according to your needs.
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def verify_access_token(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        sub: str = payload.get("sub")
+        if sub is None:
+            raise credentials_exception
+    except JWTError as exc:
+        print(exc)
+        raise credentials_exception
+    return True
+
 
 @app.post("/api/users/login")
-def user_login(login_schema: LoginSchema, response: Response):
-    if login_schema.email == "admin@test.com" and login_schema.password == "admin":
+def user_login(login_schema: LoginSchema, response: Response, db: Session = Depends(get_db)):
+    record = crud.get_user_email(db, login_schema.email)
+    if record is not None and login_schema.password == record.password:
+        # Login Success
         logger.info("Successful login")
-        return {"success": True}
+        token = create_access_token({"sub": str(record.id)})
+        return {"success": True, "token": token}
+    # Login failed
     response.status_code = status.HTTP_401_UNAUTHORIZED
-    logger.warning("Unauthorized user")
-    return {"success": False}
+    logger.warning("Unauthorized user" + login_schema.email)
+    return {"success": False, "token": None}
+
+
+@app.get("/api/secure_api")
+def secure_api(token_verification=Depends(verify_access_token)):
+    return {"data": "secret data"}
 
 
 @app.post("/api/users/register")

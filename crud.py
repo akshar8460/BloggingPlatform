@@ -16,6 +16,11 @@ def get_user(db: Session, id):
     return db_user
 
 
+def get_user_email(db: Session, email):
+    db_user = db.query(User).filter(User.email == email).first()
+    return db_user
+
+
 def get_all_users(db: Session):
     db_users = db.query(User).all()
     return db_users
