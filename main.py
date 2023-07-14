@@ -17,7 +17,7 @@ from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog, UpdateUs
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # Todo: Change according to your needs.
+SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # Change as your needs
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -72,7 +72,8 @@ def secure_api(token_verification=Depends(verify_access_token)):
 
 
 @app.post("/api/users/register")
-def user_register(create_user: CreateAccount, response: Response, db: Session = Depends(get_db)):
+def user_register(create_user: CreateAccount, response: Response, db: Session = Depends(get_db),
+                  token_verification=Depends(verify_access_token)):
     """TODO: get data, if present in database
     response.status_code = status.HTTP_403_FORBIDDEN
     return{"success": False}
@@ -83,33 +84,35 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
 
 
 @app.get("/api/users/{user_id}")
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user(user_id: int, db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     user_record: models.User = crud.get_user(db, user_id)
     return user_record
 
 
 @app.get("/api/users/")
-def get_all_users(db: Session = Depends(get_db)):
+def get_all_users(db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     users_records: List[models.User] = crud.get_all_users(db)
     return users_records
 
 
 @app.put("/api/users/{user_id}")
-def update_blog(user_id, update_user_payload: UpdateUser, db: Session = Depends(get_db)):
+def update_blog(user_id, update_user_payload: UpdateUser, db: Session = Depends(get_db),
+                token_verification=Depends(verify_access_token)):
     updated_user = crud.update_user(db, user_id, update_user_payload.email, update_user_payload.name,
                                     update_user_payload.password)
     return updated_user
 
 
 @app.delete("/api/users/{user_id}")
-def delete_user(user_id, db: Session = Depends(get_db)):
+def delete_user(user_id, db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     crud.delete_user(db, user_id)
     response = {"success": True}
     return response
 
 
 @app.post("/api/blogs")
-def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session = Depends(get_db)):
+def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session = Depends(get_db),
+                token_verification=Depends(verify_access_token)):
     crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
     response.status_code = status.HTTP_201_CREATED
     email_response = send_email()
@@ -125,25 +128,26 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
 
 
 @app.get("/api/blogs/{blog_id}")
-def read_blog(blog_id: int, db: Session = Depends(get_db)):
+def read_blog(blog_id: int, db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     blog_record: models.Blog = crud.read_blog(db, blog_id)
     return blog_record
 
 
 @app.get("/api/blogs")
-def read_all_blog(db: Session = Depends(get_db)):
+def read_all_blog(db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     blog_records: List[models.Blog] = crud.read_all_blog(db)
     return blog_records
 
 
 @app.put("/api/blogs/{blog_id}")
-def update_blog(blog_id, update_blog_payload: UpdateBlog, db: Session = Depends(get_db)):
+def update_blog(blog_id, update_blog_payload: UpdateBlog, db: Session = Depends(get_db),
+                token_verification=Depends(verify_access_token)):
     updated_record = crud.update_blog(db, blog_id, update_blog_payload.topic, update_blog_payload.data)
     return updated_record
 
 
 @app.delete("/api/blogs/{blog_id}")
-def delete_blog(blog_id: int, db: Session = Depends(get_db)):
+def delete_blog(blog_id: int, db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     crud.delete_blog(db, blog_id)
     response = {"success": True}
     return response
