@@ -72,20 +72,28 @@ def secure_api(token_verification=Depends(verify_access_token)):
 
 
 @app.post("/api/users/register")
-def user_register(create_user: CreateAccount, response: Response, db: Session = Depends(get_db),
-                  token_verification=Depends(verify_access_token)):
-    """TODO: get data, if present in database
+def user_register(create_user: CreateAccount, response: Response, db: Session = Depends(get_db)):
+    """
+
     response.status_code = status.HTTP_403_FORBIDDEN
     return{"success": False}
     """
+
+    record = crud.get_user_email(db, create_user.email)
+    if record is not None:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        logger.warning("User exists")
+        return {"success": False}
     crud.create_user(db, create_user.email, create_user.password, create_user.name)
     response.status_code = status.HTTP_201_CREATED  # for user creation
-    return {"name": create_user.name, "email": create_user.email, "User Created": True}
+    logger.debug("New User Registered")
+    return {"name": create_user.name, "email": create_user.email, "success": True}
 
 
 @app.get("/api/users/{user_id}")
 def get_user(user_id: int, db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     user_record: models.User = crud.get_user(db, user_id)
+    logger.debug("User data fetched" + str(user_id))
     return user_record
 
 
@@ -96,7 +104,7 @@ def get_all_users(db: Session = Depends(get_db), token_verification=Depends(veri
 
 
 @app.put("/api/users/{user_id}")
-def update_blog(user_id, update_user_payload: UpdateUser, db: Session = Depends(get_db),
+def update_user(user_id, update_user_payload: UpdateUser, db: Session = Depends(get_db),
                 token_verification=Depends(verify_access_token)):
     updated_user = crud.update_user(db, user_id, update_user_payload.email, update_user_payload.name,
                                     update_user_payload.password)
