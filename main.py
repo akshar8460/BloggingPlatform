@@ -86,6 +86,14 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
     crud.create_user(db, create_user.email, create_user.password, create_user.name)
     response.status_code = status.HTTP_201_CREATED  # for user creation
     logger.debug("New User Registered")
+    data = {
+        "template_data": {"name": create_user.name,
+                          "country": "Delhi"
+                          },
+        "email": create_user.email,
+        "type": "register_user"
+    }
+    send_email(payload=data)
     return {"name": create_user.name, "email": create_user.email, "success": True}
 
 
@@ -125,15 +133,10 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
                 token_verification=Depends(verify_access_token)):
     crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
     response.status_code = status.HTTP_201_CREATED
-    email_response = send_email()
-    logger.debug(f"Email Response: {email_response}")
     response = {
         "topic": create_blog_payload.topic,
-        "content": create_blog_payload.data,
-        "email_sent": False
+        "content": create_blog_payload.data
     }
-    if email_response.get("success"):
-        response["email_sent"] = True
     return response
 
 

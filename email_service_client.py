@@ -1,15 +1,12 @@
-import requests
+import json
+
+import pika
+
+credentials = pika.PlainCredentials('admin', 'admin')
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, '/', credentials))
 
 
-def send_email():
-    url = "http://localhost:8001/email"  # Replace with the actual API endpoint URL
-    headers = {
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.post(url, headers=headers)
-        response.raise_for_status()  # Raise an exception for any HTTP errors (optional)
-        data = response.json()
-        return data
-    except requests.exceptions.RequestException as e:
-        return {"error": str(e)}
+def send_email(payload):
+    channel = connection.channel()
+    channel.queue_declare(queue='email_queue')
+    channel.basic_publish(exchange='', routing_key='email_queue', body=json.dumps(payload))
