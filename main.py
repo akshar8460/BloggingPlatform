@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import timedelta, datetime
 from typing import List, Annotated
 
+import uvicorn
 from fastapi import FastAPI, Response, status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -139,7 +140,7 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
 @app.get("/api/blogs/{blog_id}")
 def read_blog(blog_id: int, db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     blog_record: models.Blog = crud.read_blog(db, blog_id)
-    logger.debug("Read Blog"+ str(blog_id))
+    logger.debug("Read Blog" + str(blog_id))
     return blog_record
 
 
@@ -164,3 +165,7 @@ def delete_blog(blog_id: int, db: Session = Depends(get_db), token_verification=
     response = {"success": True}
     logger.log("Blog deleted" + str(blog_id))
     return response
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=8000)
