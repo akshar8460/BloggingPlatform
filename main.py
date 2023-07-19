@@ -11,15 +11,15 @@ from sqlalchemy.orm import Session
 
 import crud
 import models
+from config import *
 from db_connector import get_db
 from email_service_client import send_email
 from log_config import logger
 from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog, UpdateUser
 
 app = FastAPI()
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # Change as your needs
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -245,7 +245,7 @@ def read_blog(blog_id: int, db: Session = Depends(get_db), token_verification=De
 
 
 @app.get("/api/blogs")
-def read_all_blog(db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
+def read_all_blogs(db: Session = Depends(get_db), token_verification=Depends(verify_access_token)):
     """
         Endpoint to read all blogs.
         Args:
