@@ -1,14 +1,6 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.exc import OperationalError
 
-from db_connector import Base, engine
-from log_config import logger
-
-try:
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database connection established successfully")
-except OperationalError:
-    logger.error("Failed to establish connection to the database.")
+from db_connector import Base
 
 
 class User(Base):

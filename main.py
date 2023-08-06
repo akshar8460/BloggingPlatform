@@ -7,11 +7,13 @@ import uvicorn
 from fastapi import FastAPI, Response, status, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 import crud
 import models
 from config import *
+from db_connector import Base, engine
 from db_connector import get_db
 from email_service_client import send_email
 from log_config import logger
@@ -294,5 +296,14 @@ def delete_blog(blog_id: int, db: Session = Depends(get_db), token_verification=
     return response
 
 
+def create_tables():
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database connection established successfully")
+    except OperationalError:
+        logger.error("Failed to establish connection to the database.")
+
+
 if __name__ == "__main__":
+    create_tables()
     uvicorn.run(app, port=8000)
