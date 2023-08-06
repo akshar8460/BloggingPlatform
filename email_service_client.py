@@ -2,8 +2,10 @@ import json
 
 import pika
 
-credentials = pika.PlainCredentials('admin', 'admin')
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, '/', credentials))
+from config import *
+
+credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
+connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_SERVER, RABBITMQ_PORT, '/', credentials))
 
 
 def send_email(payload):
