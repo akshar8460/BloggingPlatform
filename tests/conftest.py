@@ -25,7 +25,7 @@ def db():
     Base.metadata.drop_all(bind=engine)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def client(db):
     def override_get_db():
         try:
@@ -39,19 +39,19 @@ def client(db):
     yield client
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def initialize_sample_data(request, db):
     """Initializing testing database with sample records"""
-    if not hasattr(request.module, "_sample_data_initialized"):
+    if not hasattr(request.session, "_sample_data_initialized"):
         test_data = {"name": "john_doe", "email": "admin@test.com", "password": "admin"}
         user = User(**test_data)
         db.add(user)
         db.commit()
-        request.module._sample_data_initialized = True
+        request.session._sample_data_initialized = True
     yield
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def jwt_header(client):
     response = client.post("/api/users/login", json={"email": "admin@test.com", "password": "admin"})
     jwt_token = response.json()["token"]

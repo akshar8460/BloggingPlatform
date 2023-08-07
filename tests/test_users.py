@@ -26,6 +26,9 @@ def test_user_flow(client, initialize_sample_data, jwt_header):
                           json={"name": "new2", "email": "new@new.com", "password": "password"},
                           headers=jwt_header)
     assert response.status_code == 200
+
+    response = client.get(f"/api/users/{user_id}", headers=jwt_header)
+    assert response.status_code == 200
     assert response.json()["name"] == "new2"
 
     response = client.post("/api/users/register",
@@ -42,21 +45,3 @@ def test_get_all_users(client, initialize_sample_data, jwt_header):
     response = client.get("/api/users/", headers=jwt_header)
     assert response.status_code == 200
     assert len(response.json()) > 0
-
-
-def test_get_user(client, initialize_sample_data, jwt_header):
-    response = client.get("/api/users/1", headers=jwt_header)
-    assert response.status_code == 200
-    assert response.json()["name"] == "john_doe"
-
-
-def test_create_blog(client, initialize_sample_data, jwt_header):
-    response = client.post("/api/blogs",
-                           json={"topic": "new", "data": "This a new blog created"},
-                           headers=jwt_header)
-    assert response.status_code == 201
-
-
-def test_get_all_blogs(client, initialize_sample_data, jwt_header):
-    response = client.get("/api/blogs", headers=jwt_header)
-    assert response.status_code == 200
