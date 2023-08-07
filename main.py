@@ -61,7 +61,7 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
         response.status_code = status.HTTP_403_FORBIDDEN
         logger.warning("User exists")
         return {"success": False}
-    crud.create_user(db, create_user.email, create_user.password, create_user.name)
+    user_record: models.User = crud.create_user(db, create_user.email, create_user.password, create_user.name)
     response.status_code = status.HTTP_201_CREATED  # for user creation
     logger.debug("New User Registered")
     data = {
@@ -73,7 +73,7 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
     }
     # Send email message in RabbitMQ for Email Microservice
     send_email(payload=data)
-    return {"name": create_user.name, "email": create_user.email, "success": True}
+    return {"name": user_record.name, "email": user_record.email, "id":user_record.id , "success": True}
 
 
 @app.get("/api/users/{user_id}")
@@ -120,9 +120,9 @@ def update_user(user_id, update_user_payload: UpdateUser, db: Session = Depends(
         Returns:
             models.User: The updated user data.
         """
-    updated_user = crud.update_user(db, user_id, update_user_payload.email, update_user_payload.name,
-                                    update_user_payload.password)
-    logger.log("user date updated: " + str(user_id))
+    updated_user = crud.update_user(db, user_id, email=update_user_payload.email, name=update_user_payload.name,
+                                    password=update_user_payload.password)
+    logger.info("user date updated: " + str(user_id))
     return updated_user
 
 
