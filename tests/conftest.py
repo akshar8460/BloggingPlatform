@@ -41,6 +41,7 @@ def client(db):
 
 @pytest.fixture(scope="module")
 def initialize_sample_data(request, db):
+    """Initializing testing database with sample records"""
     if not hasattr(request.module, "_sample_data_initialized"):
         test_data = {"name": "john_doe", "email": "admin@test.com", "password": "admin"}
         user = User(**test_data)
