@@ -73,7 +73,7 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
     }
     # Send email message in RabbitMQ for Email Microservice
     send_email(payload=data)
-    return {"name": user_record.name, "email": user_record.email, "id":user_record.id , "success": True}
+    return {"name": user_record.name, "email": user_record.email, "id": user_record.id, "success": True}
 
 
 @app.get("/api/users/{user_id}")
@@ -157,11 +157,12 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
         Returns:
             dict: The response containing the created blog details.
         """
-    crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
+    blog_record: models.Blog = crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
     response.status_code = status.HTTP_201_CREATED
     response = {
-        "topic": create_blog_payload.topic,
-        "content": create_blog_payload.data
+        "id": blog_record.id,
+        "topic": blog_record.topic,
+        "data": blog_record.data
     }
     return response
 
@@ -228,7 +229,7 @@ def delete_blog(blog_id: int, db: Session = Depends(get_db), token_verification=
         """
     crud.delete_blog(db, blog_id)
     response = {"success": True}
-    logger.log("Blog deleted" + str(blog_id))
+    logger.info("Blog deleted" + str(blog_id))
     return response
 
 
