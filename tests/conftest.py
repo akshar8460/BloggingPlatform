@@ -42,8 +42,7 @@ def client(db):
 @pytest.fixture(scope="module")
 def initialize_sample_data(request, db):
     if not hasattr(request.module, "_sample_data_initialized"):
-        test_data = {"name": "john_doe", "email": "test@test.com", "password": "admin"}
-        # Create a User instance and add it to the session
+        test_data = {"name": "john_doe", "email": "admin@test.com", "password": "admin"}
         user = User(**test_data)
         db.add(user)
         db.commit()
