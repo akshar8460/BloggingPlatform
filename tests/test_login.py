@@ -27,3 +27,14 @@ def test_register_user(client, initialize_sample_data):
     assert response.status_code == 201
     response = client.post("/api/users/login", json={"email": "new@new.com", "password": "password"})
     assert response.status_code == 200
+
+
+def test_get_blogs(client, initialize_sample_data):
+    response = client.post("/api/users/login", json={"email": "admin@test.com", "password": "admin"})
+    jwt_token = response.json()["token"]
+    headers = {
+        "Authorization": f"Bearer {jwt_token}"
+    }
+    response = client.get("/api/blogs", headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) == 0
