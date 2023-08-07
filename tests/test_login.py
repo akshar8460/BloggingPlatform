@@ -25,6 +25,12 @@ def test_register_user(client, initialize_sample_data):
                            json={"name": "new", "email": "new@new.com", "password": "password"},
                            headers=headers)
     assert response.status_code == 201
+
+    response = client.post("/api/users/register",
+                           json={"name": "new", "email": "new@new.com", "password": "password"},
+                           headers=headers)
+    assert response.status_code == 403
+
     response = client.post("/api/users/login", json={"email": "new@new.com", "password": "password"})
     assert response.status_code == 200
 
