@@ -48,3 +48,13 @@ def initialize_sample_data(request, db):
         db.commit()
         request.module._sample_data_initialized = True
     yield
+
+
+@pytest.fixture(scope="module")
+def jwt_header(client):
+    response = client.post("/api/users/login", json={"email": "admin@test.com", "password": "admin"})
+    jwt_token = response.json()["token"]
+    headers = {
+        "Authorization": f"Bearer {jwt_token}"
+    }
+    yield headers

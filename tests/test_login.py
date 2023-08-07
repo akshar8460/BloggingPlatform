@@ -16,25 +16,25 @@ def test_login(client, initialize_sample_data, email, password, expected_status)
 
 
 def test_register_user(client, initialize_sample_data):
-    response = client.post("/api/users/login", json={"email": "admin@test.com", "password": "admin"})
-    jwt_token = response.json()["token"]
-    headers = {
-        "Authorization": f"Bearer {jwt_token}"
-    }
     response = client.post("/api/users/register",
-                           json={"name": "new", "email": "new@new.com", "password": "password"},
-                           headers=headers)
+                           json={"name": "new", "email": "new@new.com", "password": "password"})
     assert response.status_code == 201
+
+    response = client.post("/api/users/register",
+                           json={"name": "new", "email": "new@new.com", "password": "password"})
+    assert response.status_code == 403
+
     response = client.post("/api/users/login", json={"email": "new@new.com", "password": "password"})
     assert response.status_code == 200
 
 
-def test_get_blogs(client, initialize_sample_data):
-    response = client.post("/api/users/login", json={"email": "admin@test.com", "password": "admin"})
-    jwt_token = response.json()["token"]
-    headers = {
-        "Authorization": f"Bearer {jwt_token}"
-    }
-    response = client.get("/api/blogs", headers=headers)
+def test_get_all_users(client, initialize_sample_data, jwt_header):
+    response = client.get("/api/users/", headers=jwt_header)
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+
+
+def test_get_all_blogs(client, initialize_sample_data, jwt_header):
+    response = client.get("/api/blogs", headers=jwt_header)
     assert response.status_code == 200
     assert len(response.json()) == 0
