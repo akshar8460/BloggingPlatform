@@ -15,7 +15,9 @@ def test_login(client, initialize_sample_data, email, password, expected_status)
     assert response.status_code == expected_status
 
 
-def test_user_flow(client, initialize_sample_data, jwt_header):
+def test_user_flow(client, initialize_sample_data, jwt_header, mocker):
+    mocker.patch("main.send_email")
+
     response = client.post("/api/users/register",
                            json={"name": "new", "email": "new@new.com", "password": "password"})
     assert response.status_code == 201
