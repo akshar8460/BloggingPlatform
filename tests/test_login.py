@@ -22,7 +22,9 @@ def test_user_flow(client, initialize_sample_data, jwt_header):
 
     user_id = response.json()["id"]
 
-    response = client.put(f"/api/users/{user_id}", json={"name": "new2", "email": "new@new.com", "password": "password"}, headers=jwt_header)
+    response = client.put(f"/api/users/{user_id}",
+                          json={"name": "new2", "email": "new@new.com", "password": "password"},
+                          headers=jwt_header)
     assert response.status_code == 200
     assert response.json()["name"] == "new2"
 
@@ -50,7 +52,8 @@ def test_get_user(client, initialize_sample_data, jwt_header):
 
 def test_create_blog(client, initialize_sample_data, jwt_header):
     response = client.post("/api/blogs",
-                           json={"topic": "new", "data": "This a new blog created"}, headers=jwt_header)
+                           json={"topic": "new", "data": "This a new blog created"},
+                           headers=jwt_header)
     assert response.status_code == 201
 
 
