@@ -21,9 +21,9 @@ The Blogging Platform Backend is a Python project that uses FastAPI, PostgreSQL,
 - [x] PostgreSQL database utilization
 - [x] API testing with Postman
 - [x] API documentation generated with Swagger/OpenAPI
+- [x] Authentication with JWT Bearer Token
+- [x] High unit test coverage (over 90%)
 - [ ] Logging functionality for error tracking and debugging
-- [ ] Authentication with JWT Bearer Token & OAuth using Google Account
-- [ ] High unit test coverage (over 90%)
 
 ## Getting Started
 To get started with the Blogging Platform Backend project, follow the steps below:

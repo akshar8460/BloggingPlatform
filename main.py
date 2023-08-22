@@ -79,7 +79,7 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
         response.status_code = status.HTTP_403_FORBIDDEN
         logger.warning("User exists")
         return {"success": False}
-    crud.create_user(db, create_user.email, create_user.password, create_user.name)
+    user_record: models.User = crud.create_user(db, create_user.email, create_user.password, create_user.name)
     response.status_code = status.HTTP_201_CREATED  # for user creation
     logger.debug("New User Registered")
     data = {
@@ -91,7 +91,7 @@ def user_register(create_user: CreateAccount, response: Response, db: Session = 
     }
     # Send email message in RabbitMQ for Email Microservice
     send_email(payload=data)
-    return {"name": create_user.name, "email": create_user.email, "success": True}
+    return {"name": user_record.name, "email": user_record.email, "id": user_record.id, "success": True}
 
 
 @app.get("/api/users/{user_id}")
@@ -138,9 +138,9 @@ def update_user(user_id, update_user_payload: UpdateUser, db: Session = Depends(
         Returns:
             models.User: The updated user data.
         """
-    updated_user = crud.update_user(db, user_id, update_user_payload.email, update_user_payload.name,
-                                    update_user_payload.password)
-    logger.log("user date updated: " + str(user_id))
+    updated_user = crud.update_user(db, user_id, email=update_user_payload.email, name=update_user_payload.name,
+                                    password=update_user_payload.password)
+    logger.info("user date updated: " + str(user_id))
     return updated_user
 
 
@@ -175,11 +175,12 @@ def create_blog(create_blog_payload: CreateBlog, response: Response, db: Session
         Returns:
             dict: The response containing the created blog details.
         """
-    crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
+    blog_record: models.Blog = crud.create_blog(db, create_blog_payload.topic, create_blog_payload.data)
     response.status_code = status.HTTP_201_CREATED
     response = {
-        "topic": create_blog_payload.topic,
-        "content": create_blog_payload.data
+        "id": blog_record.id,
+        "topic": blog_record.topic,
+        "data": blog_record.data
     }
     return response
 
@@ -246,7 +247,7 @@ def delete_blog(blog_id: int, db: Session = Depends(get_db), token_verification=
         """
     crud.delete_blog(db, blog_id)
     response = {"success": True}
-    logger.log("Blog deleted" + str(blog_id))
+    logger.info("Blog deleted" + str(blog_id))
     return response
 
 
