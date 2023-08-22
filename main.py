@@ -4,6 +4,7 @@ from typing import List
 
 import uvicorn
 from fastapi import FastAPI, Response, status, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,23 @@ from schemas import LoginSchema, CreateAccount, CreateBlog, UpdateBlog, UpdateUs
 from utils import create_access_token, verify_access_token
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",  # Add the actual URL of your React app
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/test")
+def get_test():
+    return [1, 2, 3]
 
 
 @app.post("/api/users/login")
